@@ -1,5 +1,5 @@
 diff --git a/rc_msg.c b/rc_msg.c
-index c98d96d..8c5db5f 100644
+index 9ba2211..8538675 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -81,7 +81,14 @@ static struct rc_interface_s *rc_interface_header = &RC_OurInterfaceStruct;

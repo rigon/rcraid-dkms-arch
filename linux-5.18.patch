@@ -1,8 +1,62 @@
+diff --git a/rc_config.c b/rc_config.c
+index 1692640..3946b10 100644
+--- a/rc_config.c
++++ b/rc_config.c
+@@ -8,7 +8,6 @@
+ #include <linux/module.h>
+ #include <linux/fs.h>
+ #include <linux/miscdevice.h>
+-#include <linux/genhd.h>
+ #include <linux/sched.h>
+ #include <linux/completion.h>
+ 
+@@ -39,8 +38,8 @@ extern void rc_msg_process_srb(rc_srb_t *);
+ 
+ struct semaphore rccfg_wait;
+ 
+-static void 
+-rccfg_callback (rc_srb_t *srb) 
++static void
++rccfg_callback (rc_srb_t *srb)
+ {
+ 	up(&rccfg_wait);
+ }
+@@ -154,19 +153,19 @@ rccfg_io(struct sg_io_hdr *hdr)
+ 		state->srb_q.tail = srb;
+ 	}
+ 	spin_unlock_irqrestore(&state->srb_q.lock, irql);
+-    
++
+ 	state->stats.scb_total++;
+ 	state->stats.target_total[target]++;
+ 
+ 	atomic_inc(&state->stats.scb_pending);
+ 	atomic_inc(&state->stats.target_pending[target]);
+-    
++
+ 	tasklet_schedule(&state->srb_q.tasklet);
+ 
+         // wait for callback completion
+ 	down(&rccfg_wait);
+ 
+-	/* copy the srb status back into the sg hdr status 
++	/* copy the srb status back into the sg hdr status
+ 	 * this is appear to all that the user space uses
+ 	 * for error reporting, but it might need sense data
+ 	 * at some point
 diff --git a/rc_init.c b/rc_init.c
-index 7040824..fcc49e7 100644
+index 055ef2c..fcc49e7 100644
 --- a/rc_init.c
 +++ b/rc_init.c
-@@ -524,12 +524,12 @@ rc_init_adapter(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -352,6 +352,7 @@ static Scsi_Host_Template driver_template = {
+ 	.use_clustering =          ENABLE_CLUSTERING,
+ #endif
+ 	.slave_configure =         rc_slave_cfg,
++	.cmd_size =                sizeof(rc_pcmd_t),
+ };
+ 
+ /*
+@@ -523,12 +524,12 @@ rc_init_adapter(struct pci_dev *dev, const struct pci_device_id *id)
  	/*
  	 * set dma_mask to 64 bit capabilities but if that fails, try 32 bit
  	 */
@@ -19,7 +73,7 @@ index 7040824..fcc49e7 100644
  		rc_printk(RC_NOTE, RC_DRIVER_NAME ": %s 64 bit DMA disabled\n",
  			  __FUNCTION__);
  	} else {
-@@ -903,7 +903,7 @@ rc_shutdown_adapter(rc_adapter_t *adapter)
+@@ -902,7 +903,7 @@ rc_shutdown_adapter(rc_adapter_t *adapter)
  	rc_printk(RC_DEBUG, "%s: free private_mem 0x%p\n",
  		  __FUNCTION__, adapter->private_mem.vaddr);
  	if (adapter->private_mem.vaddr)  {
@@ -28,8 +82,32 @@ index 7040824..fcc49e7 100644
  				    rc_state.memsize_per_controller,
  				    adapter->private_mem.vaddr,
  				    adapter->private_mem.dma_address);
+@@ -1425,19 +1426,21 @@ int rc_queue_cmd_lck (struct scsi_cmnd * scp)
+ int
+ rc_eh_abort_cmd (struct scsi_cmnd * scp)
+ {
++	rc_pcmd_t *pcmd;
+ 	rc_srb_t *srb;
+ 
+ 	rc_printk(RC_ERROR, "rc_eh_abort_cmd: scp: 0x%p bus %d target %d\n",
+ 		  scp, scp->device->channel, scp->device->id);
+ 	// rc_config_debug = 1;
+ 
+-	srb = (rc_srb_t *)scp->SCp.ptr;
++	pcmd = (rc_pcmd_t *)scsi_cmd_priv(scp);
++	srb = pcmd->srb_ptr;
+ 	if (srb != NULL) {
+ 		rc_printk(RC_DEBUG, "\tsrb: 0x%p seq_num %d function %x status %x "
+ 			  "flags %x b/t/l %d/%d/%d\n", srb, srb->seq_num, srb->function,
+ 			  srb->status, srb->flags, srb->bus, srb->target, srb->lun);
+ 		srb->scsi_context = NULL;
+-		scp->SCp.ptr = NULL;
++		pcmd->srb_ptr = NULL;
+ 	} else {
+ 		rc_printk(RC_WARN, "rc_eh_abort_cmd: srb already completed\n");
+ 		// most likely here because we already processed srb
 diff --git a/rc_msg.c b/rc_msg.c
-index bc50924..c98d96d 100644
+index acf7cda..9ba2211 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -1113,9 +1113,10 @@ rc_msg_init(rc_softstate_t *state)
@@ -45,7 +123,48 @@ index bc50924..c98d96d 100644
  
  		if (addr == (void *)0) {
  			rc_printk(RC_ERROR,"rc_msg_init: can not alloc %d bytes of per "
-@@ -2193,7 +2194,7 @@ rc_msg_get_dma_memory(alloc_dma_address_t *dma_address)
+@@ -1399,6 +1400,7 @@ int
+ rc_msg_send_srb(struct scsi_cmnd * scp)
+ {
+ 	rc_softstate_t *state;
++	rc_pcmd_t      *pcmd;
+ 	rc_srb_t       *srb;
+ 	int             size;
+ 	int             bus, target, lun;
+@@ -1472,10 +1474,11 @@ rc_msg_send_srb(struct scsi_cmnd * scp)
+ #endif
+ 	srb->seq_num      = rc_srb_seq_num++;
+ 
+-	/* the scsi_cmnd pointer points at our srb, at least until the command is
+-	 * aborted
++	/* our private command data struct contains the pointer to our srb, at least
++	 * until the command is aborted
+ 	 */
+-	scp->SCp.ptr = (void *)srb;
++	pcmd = (rc_pcmd_t *)scsi_cmd_priv(scp);
++	pcmd->srb_ptr = srb;
+ 
+ 	rc_msg_build_sg(srb);
+ 
+@@ -1829,6 +1832,7 @@ void
+ rc_msg_srb_complete(struct rc_srb_s *srb)
+ {
+ 	struct scsi_cmnd    *scp;
++	rc_pcmd_t *pcmd;
+ 	rc_softstate_t *state;
+ 
+ 	state = &rc_state;
+@@ -1865,7 +1869,8 @@ rc_msg_srb_complete(struct rc_srb_s *srb)
+ 		return;
+ 	}
+ 
+-	scp->SCp.ptr = NULL;
++	pcmd = (rc_pcmd_t *)scsi_cmd_priv(scp);
++	pcmd->srb_ptr = NULL;
+ 
+ 	if (srb->status == RC_SRB_STATUS_SUCCESS) {
+ 		 //rc_printk(RC_DEBUG2, "%s: seq_num %d SUCCESS\n", __FUNCTION__,
+@@ -2189,7 +2194,7 @@ rc_msg_get_dma_memory(alloc_dma_address_t *dma_address)
      dmaHandle = (dma_addr_t*) &dma_address->dmaHandle;
  
  
@@ -54,7 +173,7 @@ index bc50924..c98d96d 100644
  
      if (dma_address->cpu_addr)
      {
-@@ -2204,7 +2205,7 @@ rc_msg_get_dma_memory(alloc_dma_address_t *dma_address)
+@@ -2200,7 +2205,7 @@ rc_msg_get_dma_memory(alloc_dma_address_t *dma_address)
  void
  rc_msg_free_dma_memory(rc_adapter_t	*adapter, void *cpu_addr, dma_addr_t dmaHandle, rc_uint32_t bytes)
  {
@@ -63,7 +182,7 @@ index bc50924..c98d96d 100644
  }
  
  void
-@@ -2293,7 +2294,7 @@ rc_msg_map_mem(struct map_memory_s *map)
+@@ -2289,7 +2294,7 @@ rc_msg_map_mem(struct map_memory_s *map)
  			if (len < len_mapped)
  				len_mapped = len;
  
@@ -72,7 +191,7 @@ index bc50924..c98d96d 100644
              if (dma_mapping_error(&adapter->pdev->dev, map->physical_address))
              {
                  map->number_bytes = 0;
-@@ -2304,7 +2305,7 @@ rc_msg_map_mem(struct map_memory_s *map)
+@@ -2300,7 +2305,7 @@ rc_msg_map_mem(struct map_memory_s *map)
      } else if ((map->memory_id & MEM_TYPE) == RC_MEM_DMA) {
          vaddr = (void *)(rc_uint_ptr_t)map->address;
  
@@ -81,3 +200,29 @@ index bc50924..c98d96d 100644
          if (dma_mapping_error(&adapter->pdev->dev, map->physical_address))
          {
              map->number_bytes = 0;
+@@ -2425,7 +2430,7 @@ void
+ rc_msg_access_ok(rc_access_ok_t accessOk)
+ {
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+-    accessOk.returnStatus = access_ok( accessOk.access_location, accessOk.access_size);
++    accessOk.returnStatus = access_ok((void *) accessOk.access_location, accessOk.access_size);
+ #else
+     accessOk.returnStatus = access_ok( VERIFY_WRITE , accessOk.access_location, accessOk.access_size);
+ #endif
+diff --git a/rc_srb.h b/rc_srb.h
+index 735b9d0..7493d31 100644
+--- a/rc_srb.h
++++ b/rc_srb.h
+@@ -173,5 +173,12 @@ typedef struct rc_srb_s {
+ 	// beginning of the sg_list.
+ } rc_srb_t;
+ 
++/*
++ * Private command data
++ */
++typedef struct rc_pcmd_s {
++  rc_srb_t *srb_ptr;
++} rc_pcmd_t;
++
+ 
+ #endif /*RC_SRB_H*/
