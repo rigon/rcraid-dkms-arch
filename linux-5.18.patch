@@ -1,5 +1,5 @@
 diff --git a/rc_init.c b/rc_init.c
-index f388763..e7cf9a7 100644
+index 7040824..fcc49e7 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -524,12 +524,12 @@ rc_init_adapter(struct pci_dev *dev, const struct pci_device_id *id)
@@ -29,7 +29,7 @@ index f388763..e7cf9a7 100644
  				    adapter->private_mem.vaddr,
  				    adapter->private_mem.dma_address);
 diff --git a/rc_msg.c b/rc_msg.c
-index 1160c3c..ca66dd6 100644
+index bc50924..c98d96d 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -1113,9 +1113,10 @@ rc_msg_init(rc_softstate_t *state)

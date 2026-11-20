@@ -45,7 +45,7 @@ index 1692640..3946b10 100644
  	 * for error reporting, but it might need sense data
  	 * at some point
 diff --git a/rc_init.c b/rc_init.c
-index 1b7aea3..f388763 100644
+index 055ef2c..7040824 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -352,6 +352,7 @@ static Scsi_Host_Template driver_template = {
@@ -56,7 +56,7 @@ index 1b7aea3..f388763 100644
  };
  
  /*
-@@ -1422,19 +1423,21 @@ int rc_queue_cmd_lck (struct scsi_cmnd * scp)
+@@ -1425,19 +1426,21 @@ int rc_queue_cmd_lck (struct scsi_cmnd * scp)
  int
  rc_eh_abort_cmd (struct scsi_cmnd * scp)
  {
@@ -81,7 +81,7 @@ index 1b7aea3..f388763 100644
  		rc_printk(RC_WARN, "rc_eh_abort_cmd: srb already completed\n");
  		// most likely here because we already processed srb
 diff --git a/rc_msg.c b/rc_msg.c
-index 3a560ee..1160c3c 100644
+index acf7cda..bc50924 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -1399,6 +1399,7 @@ int

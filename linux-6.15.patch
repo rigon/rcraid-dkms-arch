@@ -34,11 +34,27 @@ index 3d3f3ce..7f503af 100644
  endif
  endif
  
+diff --git a/rc.h b/rc.h
+index 5cb41bf..8cc7384 100644
+--- a/rc.h
++++ b/rc.h
+@@ -76,6 +76,11 @@ typedef struct scsi_host_template Scsi_Host_Template;
+ #define scsi_done(__scp)     ((__scp)->scsi_done(__scp))
+ #endif
+ 
++/* del_timer_sync() was renamed timer_delete_sync() in 6.2 */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,2,0)
++#define timer_delete_sync(__t) del_timer_sync(__t)
++#endif
++
+ // some distro's backported these defines to previous kernel versions so
+ // checking for defined as well helps avoid compiler warnings
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 diff --git a/rc_msg.c b/rc_msg.c
-index 1194a70..229798d 100644
+index 8538675..65ced72 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
-@@ -351,7 +351,7 @@ void rc_msg_suspend(rc_softstate_t *state, rc_adapter_t* adapter)
+@@ -358,7 +358,7 @@ void rc_msg_suspend(rc_softstate_t *state, rc_adapter_t* adapter)
  	{
      	rc_printk(RC_INFO2, "rc_msg_shutdown: stop OSIC timer\n");
  		state->state &= ~ENABLE_TIMER;
@@ -47,7 +63,7 @@ index 1194a70..229798d 100644
  	}
      rc_printk(RC_ALERT, "rc_msg_suspend: pausing for 1/4 second\n");
      rc_msg_timeout(HZ>>2);
-@@ -444,7 +444,7 @@ rc_msg_shutdown( rc_softstate_t *statep)
+@@ -451,7 +451,7 @@ rc_msg_shutdown( rc_softstate_t *statep)
  
  	rc_printk(RC_INFO2, "rc_msg_shutdown: stop OSIC timer\n");
  	statep->state &= ~ENABLE_TIMER;
@@ -57,19 +73,23 @@ index 1194a70..229798d 100644
  	rc_msg_timeout(HZ>>2);
  
 diff --git a/rc_msg_platform.h b/rc_msg_platform.h
-index 19ccfae..3ea43de 100644
+index 19ccfae..e946da3 100644
 --- a/rc_msg_platform.h
 +++ b/rc_msg_platform.h
-@@ -27,7 +27,7 @@
+@@ -27,7 +27,12 @@
  #define RC_STHEXT_REDO_STRICT_TYPES
  #endif //int
  
--#include <stdarg.h>
++#include <linux/version.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
+ #include <stdarg.h>
++#else
 +#include <linux/stdarg.h>
++#endif
  
  #ifdef RC_STHEXT_REDO_STRICT_TYPES
  #define int Cannot_USE_int_because_it_is_ambiguous
-@@ -351,7 +351,7 @@ typedef struct rc_send_arg_s {
+@@ -351,7 +356,7 @@ typedef struct rc_send_arg_s {
  			//
  			//    Sent to STH from driver
  			//
@@ -78,7 +98,7 @@ index 19ccfae..3ea43de 100644
  		} interrupt_call;
  		struct {
  			struct rc_srb_s *srb;
-@@ -510,7 +510,7 @@ typedef struct rc_interface_s {
+@@ -510,7 +515,7 @@ typedef struct rc_interface_s {
      rc_function_t *send_function;
  	struct rc_send_arg_s *send_arg;
      void *check_interrupt_arg;

@@ -1,5 +1,21 @@
+diff --git a/rc.h b/rc.h
+index c518656..5cb41bf 100644
+--- a/rc.h
++++ b/rc.h
+@@ -71,6 +71,11 @@ typedef struct scsi_host_template Scsi_Host_Template;
+ #define sg_phys(__sg)        (page_to_phys(sg_page((__sg))) + (__sg)->offset)
+ #endif
+ 
++/* scsi_done() replaced the scsi_cmnd->scsi_done callback in 5.16 */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,16,0)
++#define scsi_done(__scp)     ((__scp)->scsi_done(__scp))
++#endif
++
+ // some distro's backported these defines to previous kernel versions so
+ // checking for defined as well helps avoid compiler warnings
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 diff --git a/rc_init.c b/rc_init.c
-index 4a4b3dc..1b7aea3 100644
+index 4a4b3dc..055ef2c 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -180,8 +180,10 @@ int         rc_bios_params(struct scsi_device *sdev, struct block_device *bdev,
@@ -7,7 +23,7 @@ index 4a4b3dc..1b7aea3 100644
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
  int         rc_queue_cmd(struct scsi_cmnd * scp, void (*CompletionRoutine) (struct scsi_cmnd *));
 -#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,16,0)
  int         rc_queue_cmd_lck(struct scsi_cmnd * scp, void (*CompletionRoutine) (struct scsi_cmnd *));
 +#else
 +int         rc_queue_cmd_lck(struct scsi_cmnd * scp);
@@ -26,23 +42,25 @@ index 4a4b3dc..1b7aea3 100644
  
  	rc_printk(RC_DEBUG, "rc_shutdown_host\n" );
  	rc_msg_shutdown(&rc_state);
-@@ -1385,12 +1386,13 @@ int rc_mpt2_shutdown(rc_adapter_t *adapter)
+@@ -1385,12 +1386,16 @@ int rc_mpt2_shutdown(rc_adapter_t *adapter)
  
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
  int rc_queue_cmd (struct scsi_cmnd * scp, void (*CompletionRoutine) (struct scsi_cmnd *))
 -#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,16,0)
  int rc_queue_cmd_lck (struct scsi_cmnd * scp, void (*CompletionRoutine) (struct scsi_cmnd *))
 +#else
 +int rc_queue_cmd_lck (struct scsi_cmnd * scp)
  #endif
  
  {
--	scp->scsi_done = CompletionRoutine;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,16,0)
+ 	scp->scsi_done = CompletionRoutine;
++#endif
  	//#define FAIL_ALL_IO 0
  
  #ifdef FAIL_ALL_IO
-@@ -1978,10 +1980,10 @@ rc_ioctl (struct scsi_device * scsi_dev_ptr,
+@@ -1978,10 +1983,10 @@ rc_ioctl (struct scsi_device * scsi_dev_ptr,
  
  
  
@@ -57,7 +75,7 @@ index 4a4b3dc..1b7aea3 100644
  /*
   * rc_proc_info()
 diff --git a/rc_msg.c b/rc_msg.c
-index 4e5071a..3a560ee 100644
+index 7761d85..acf7cda 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -1423,7 +1423,7 @@ rc_msg_send_srb(struct scsi_cmnd * scp)

@@ -1,8 +1,8 @@
 diff --git a/rc_init.c b/rc_init.c
-index 5c6defa..3f8097b 100644
+index d7d28a7..451bf50 100644
 --- a/rc_init.c
 +++ b/rc_init.c
-@@ -2640,6 +2640,7 @@ static struct ctl_table rcraid_table[] = {
+@@ -2643,6 +2643,7 @@ static struct ctl_table rcraid_table[] = {
  	{ }
  };
  
@@ -10,7 +10,7 @@ index 5c6defa..3f8097b 100644
  static struct ctl_table rcraid_dir_table[] = {
  	{ .procname	= "rcraid",
  	  .mode		= 0555,
-@@ -2660,6 +2661,7 @@ static struct ctl_table rcraid_root_table[] = {
+@@ -2663,6 +2664,7 @@ static struct ctl_table rcraid_root_table[] = {
  	  .child	= rcraid_scsi_dir_table },
  	{ }
  };
@@ -18,7 +18,7 @@ index 5c6defa..3f8097b 100644
  
  static struct ctl_table_header *rcraid_sysctl_hdr;
  
-@@ -2681,7 +2683,9 @@ static int __init rcraid_init(void)
+@@ -2684,7 +2686,9 @@ static int __init rcraid_init(void)
  	if (err != 0)
  		return err;
  

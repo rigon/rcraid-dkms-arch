@@ -33,7 +33,7 @@ index 96528cd..c518656 100644
  
  #endif // _RC_OSHEADERS_H_
 diff --git a/rc_msg.c b/rc_msg.c
-index fb442d8..4e5071a 100644
+index fb442d8..7761d85 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
 @@ -1465,8 +1465,10 @@ rc_msg_send_srb(struct scsi_cmnd * scp)
@@ -41,7 +41,7 @@ index fb442d8..4e5071a 100644
  #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,26)
  	srb->timeout      = scp->timeout_per_command/HZ;
 -#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
  	srb->timeout      = scp->request->timeout/HZ;
 +#else
 +	srb->timeout      = scsi_cmd_to_rq(scp)->timeout/HZ;

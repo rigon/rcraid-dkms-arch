@@ -4,7 +4,7 @@ _kver=$(uname -r)
 _pkgbase=rcraid
 pkgname=rcraid-dkms
 pkgver=17.2.1
-pkgrel=1
+pkgrel=2
 pkgdesc="AMD AM4 socket X370 chipset motherbroad NVMe/SATA RAID driver (DKMS)"
 arch=('i686' 'x86_64')
 url="https://www.amd.com/en/support/chipsets/amd-socket-am4/x370"
@@ -36,19 +36,19 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '461866e715a1fded49a3f7c043a173d7'
          'cac98de11cc5bd61fff72ff1c8cf363d'
          'bd1ef2b6bcefaec0abf7a832e937f01a'
-         '956ccadfdf4fc4188ec0ab79b7311a71'
-         '86d51a674e9d8a1aa56a1bb9d741ec8f'
-         '978b50c203e156a09977052efc4fe2a5'
-         '17ebd1ffddd4cc708117db8ec010c12e'
-         'cd542069132376cc10cf0694f309763f'
-         'b7e7e4567895a3fd377646113cc7af40'
-         '0e2cbf17fefd34917f849073c25f63b6'
-         'c171e789b72bd9d6cf68f7fa63dec366'
-         '8843beaa9a544bfb5ac6c288a322cb9f'
-         'ea3b996a096c3d3360daba6f89844726'
-         'eb43cd49bf9e312f37a25a79f0b65373'
-         'aedd3b0832b9c0b355ae4bffd4c263fe'
-         'ced4d8fb42d660ebe13fcbf2d862ca46')
+         '916763c1eeb824f1c73e9dee717af05f'
+         '848919b75f84a174a2d5d4025041aba0'
+         'b2f5f1b930c14ccfd4fee84848638c6e'
+         '59cac8e5011b4b623641de96dc712a68'
+         '44d4591a3652ed8d6a5bb1ebed462312'
+         '414bbbbe4884231ecb5107ba9bb3b891'
+         'd50dfd065119fc19e9a8357c94395502'
+         '15152035dc7b375b71707523e81f169d'
+         '7709663aeeee89d2a8dc09a9ff16ba3f'
+         '318eca1f828a62040469bb43dd731d94'
+         'e09a474e5461f75cc99bdfe4ce1c0c96'
+         '11cac54d40dc5b45b7a8b76544f68ce7'
+         '849b9d9c89b27ea6c89ebaa14d8416a9')
 
 prepare() {
     if [ ! -d ${_pkgbase}-${pkgver} ]; then
