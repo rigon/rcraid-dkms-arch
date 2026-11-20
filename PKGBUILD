@@ -14,22 +14,23 @@ makedepends=('linux-headers>=4.15')
 # conflicts=("${_pkgbase}")
 # install=${pkgname}.install
 source=('manual://raid_linux_driver_8_01_00_039_public.zip'
-		'dkms.conf'
-		'linux-4.15.patch'
-		'linux-5.4.patch'
-		'linux-5.6.patch'
-		'linux-5.14.patch'
-		'linux-5.15.patch'
-		'linux-5.17.patch'
-		'linux-5.18.patch'
-		'linux-6.2.patch'
-		'linux-6.4.patch'
-		'linux-6.6.patch'
-		'linux-6.9.patch'
-		'linux-6.11.patch'
-		'linux-6.14.patch'
-		'linux-6.15.patch'
-		'linux-6.16.patch')
+        'dkms.conf'
+        'linux-4.15.patch'
+        'linux-5.4.patch'
+        'linux-5.6.patch'
+        'linux-5.14.patch'
+        'linux-5.15.patch'
+        'linux-5.17.patch'
+        'linux-5.18.patch'
+        'linux-6.2.patch'
+        'linux-6.4.patch'
+        'linux-6.6.patch'
+        'linux-6.9.patch'
+        'linux-6.11.patch'
+        'linux-6.14.patch'
+        'linux-6.15.patch'
+        'linux-6.16.patch'
+        'linux-6.18.patch')
 md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '6f78c424353ae927e81bcbfec67afece'
          '461866e715a1fded49a3f7c043a173d7'
@@ -46,45 +47,46 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '8843beaa9a544bfb5ac6c288a322cb9f'
          'ea3b996a096c3d3360daba6f89844726'
          'eb43cd49bf9e312f37a25a79f0b65373'
-         'aedd3b0832b9c0b355ae4bffd4c263fe')
+         'aedd3b0832b9c0b355ae4bffd4c263fe'
+         'ced4d8fb42d660ebe13fcbf2d862ca46')
 
 prepare() {
-	if [ ! -d ${_pkgbase}-${pkgver} ]; then
-		mkdir ${_pkgbase}-${pkgver}
-	fi
+    if [ ! -d ${_pkgbase}-${pkgver} ]; then
+        mkdir ${_pkgbase}-${pkgver}
+    fi
 
-	cp driver_sdk/src/* ${_pkgbase}-${pkgver}
+    cp driver_sdk/src/* ${_pkgbase}-${pkgver}
 }
 
 build() {
-	cd ${_pkgbase}-${pkgver}
+    cd ${_pkgbase}-${pkgver}
 
-	local src
-	for src in "${source[@]}"; do
-		src="${src%%::*}"
-		src="${src##*/}"
-		src="${src%.zst}"
-		[[ $src = *.patch ]] || continue
-		echo "Applying patch $src..."
-		patch -Np1 < "../$src"
-	done
+    local src
+    for src in "${source[@]}"; do
+        src="${src%%::*}"
+        src="${src##*/}"
+        src="${src%.zst}"
+        [[ $src = *.patch ]] || continue
+        echo "Applying patch $src..."
+        patch -Np1 < "../$src"
+    done
 
-	make KVERS="${_kver}" all
+    make KVERS="${_kver}" all
 }
 
 package() {
-	# Copy dkms.conf
-	install -Dm644 dkms.conf "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+    # Copy dkms.conf
+    install -Dm644 dkms.conf "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
 
-	# Set name and version
-	sed -e "s/@_PKGBASE@/${_pkgbase}/" \
-			-e "s/@PKGVER@/${pkgver}/" \
-			-i "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+    # Set name and version
+    sed -e "s/@_PKGBASE@/${_pkgbase}/" \
+            -e "s/@PKGVER@/${pkgver}/" \
+            -i "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
 
-	cd ${_pkgbase}-${pkgver}
+    cd ${_pkgbase}-${pkgver}
 
-	install -Dm644 rcraid.ko "${pkgdir}"/usr/lib/modules/"${_kver}"/kernel/drivers/scsi/rcraid.ko
+    install -Dm644 rcraid.ko "${pkgdir}"/usr/lib/modules/"${_kver}"/kernel/drivers/scsi/rcraid.ko
 
-	make clean
-	cp -r * "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+    make clean
+    cp -r * "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
 }
