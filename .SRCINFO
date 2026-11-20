@@ -6,7 +6,6 @@ pkgbase = rcraid-dkms
 	arch = i686
 	arch = x86_64
 	license = GPL2
-	makedepends = linux-headers>=4.15
 	depends = dkms
 	source = manual://raid_linux_driver_8_01_00_039_public.zip
 	source = dkms.conf

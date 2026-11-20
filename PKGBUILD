@@ -1,6 +1,5 @@
 # Maintainer: foo <foo(at)example(dot)org>
 # Contributor: bar <bar(at)example(dot)org>
-_kver=$(uname -r)
 _pkgbase=rcraid
 pkgname=rcraid-dkms
 pkgver=17.2.1
@@ -10,7 +9,6 @@ arch=('i686' 'x86_64')
 url="https://www.amd.com/en/support/chipsets/amd-socket-am4/x370"
 license=('GPL2')
 depends=('dkms')
-makedepends=('linux-headers>=4.15')
 # conflicts=("${_pkgbase}")
 # install=${pkgname}.install
 source=('manual://raid_linux_driver_8_01_00_039_public.zip'
@@ -51,16 +49,11 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '849b9d9c89b27ea6c89ebaa14d8416a9')
 
 prepare() {
-    if [ ! -d ${_pkgbase}-${pkgver} ]; then
-        mkdir ${_pkgbase}-${pkgver}
-    fi
-
-    cp driver_sdk/src/* ${_pkgbase}-${pkgver}
-}
-
-build() {
+    rm -rf ${_pkgbase}-${pkgver}
+    cp -r driver_sdk/src ${_pkgbase}-${pkgver}
     cd ${_pkgbase}-${pkgver}
 
+    # Patches are version-guarded, so all apply for any kernel
     local src
     for src in "${source[@]}"; do
         src="${src%%::*}"
@@ -70,23 +63,17 @@ build() {
         echo "Applying patch $src..."
         patch -Np1 < "../$src"
     done
-
-    make KVERS="${_kver}" all
 }
 
+# No build(): DKMS compiles the module on install and for each new kernel
 package() {
-    # Copy dkms.conf
-    install -Dm644 dkms.conf "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
-
-    # Set name and version
-    sed -e "s/@_PKGBASE@/${_pkgbase}/" \
-            -e "s/@PKGVER@/${pkgver}/" \
-            -i "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+    local dest="${pkgdir}/usr/src/${_pkgbase}-${pkgver}"
 
     cd ${_pkgbase}-${pkgver}
+    install -Dm644 -t "$dest" Makefile *.c *.h rcblob.*
 
-    install -Dm644 rcraid.ko "${pkgdir}"/usr/lib/modules/"${_kver}"/kernel/drivers/scsi/rcraid.ko
-
-    make clean
-    cp -r * "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+    install -Dm644 "${srcdir}/dkms.conf" "$dest/dkms.conf"
+    sed -e "s/@_PKGBASE@/${_pkgbase}/" \
+        -e "s/@PKGVER@/${pkgver}/" \
+        -i "$dest/dkms.conf"
 }
