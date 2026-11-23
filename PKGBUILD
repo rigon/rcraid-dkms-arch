@@ -1,16 +1,14 @@
-# Maintainer: foo <foo(at)example(dot)org>
-# Contributor: bar <bar(at)example(dot)org>
-_kver=$(uname -r)
 _pkgbase=rcraid
 pkgname=rcraid-dkms
 pkgver=17.2.1
-pkgrel=1
-pkgdesc="AMD AM4 socket X370 chipset motherbroad NVMe/SATA RAID driver (DKMS)"
+pkgrel=2
+pkgdesc="AMD AM4 socket X370 chipset motherboard NVMe/SATA RAID driver (DKMS)"
 arch=('i686' 'x86_64')
 url="https://www.amd.com/en/support/chipsets/amd-socket-am4/x370"
 license=('GPL2')
 depends=('dkms')
-makedepends=('linux-headers>=4.15')
+optdepends=('linux-headers: build the module for linux'
+            'linux-lts-headers: build the module for linux-lts')
 # conflicts=("${_pkgbase}")
 # install=${pkgname}.install
 source=('manual://raid_linux_driver_8_01_00_039_public.zip'
@@ -51,42 +49,28 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          'ced4d8fb42d660ebe13fcbf2d862ca46')
 
 prepare() {
-    if [ ! -d ${_pkgbase}-${pkgver} ]; then
-        mkdir ${_pkgbase}-${pkgver}
-    fi
-
+    mkdir -p ${_pkgbase}-${pkgver}
     cp driver_sdk/src/* ${_pkgbase}-${pkgver}
-}
-
-build() {
     cd ${_pkgbase}-${pkgver}
 
+    # Apply patches in source order
     local src
     for src in "${source[@]}"; do
-        src="${src%%::*}"
-        src="${src##*/}"
-        src="${src%.zst}"
+        src="${src%%::*}"   # "name::url" -> "name"
+        src="${src##*/}"    # URL -> basename
         [[ $src = *.patch ]] || continue
         echo "Applying patch $src..."
         patch -Np1 < "../$src"
     done
-
-    make KVERS="${_kver}" all
 }
 
 package() {
-    # Copy dkms.conf
-    install -Dm644 dkms.conf "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+    local dest="${pkgdir}"/usr/src/${_pkgbase}-${pkgver}
 
-    # Set name and version
+    install -Dm644 dkms.conf "${dest}"/dkms.conf
     sed -e "s/@_PKGBASE@/${_pkgbase}/" \
-            -e "s/@PKGVER@/${pkgver}/" \
-            -i "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+        -e "s/@PKGVER@/${pkgver}/" \
+        -i "${dest}"/dkms.conf
 
-    cd ${_pkgbase}-${pkgver}
-
-    install -Dm644 rcraid.ko "${pkgdir}"/usr/lib/modules/"${_kver}"/kernel/drivers/scsi/rcraid.ko
-
-    make clean
-    cp -r * "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+    cp -r ${_pkgbase}-${pkgver}/* "${dest}"/
 }
