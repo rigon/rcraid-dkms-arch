@@ -1,16 +1,8 @@
 diff --git a/rc_init.c b/rc_init.c
-index c7e77fc..a3a13d1 100644
+index c7e77fc..0e93bf6 100644
 --- a/rc_init.c
 +++ b/rc_init.c
-@@ -39,6 +39,7 @@
- #include "version.h"
- #include "build_number.h"
- #include "rc_pci_ids.h"
-+#include "rc_conftest.h"
- #include <linux/hdreg.h>
- #include <linux/reboot.h>
- #include <linux/pci.h>
-@@ -179,7 +180,12 @@ static int  rc_slave_cfg(struct scsi_device *sdev);
+@@ -179,7 +179,12 @@ static int  rc_slave_cfg(struct scsi_device *sdev);
  #else
  static int  rc_slave_cfg(struct scsi_device *sdev, struct queue_limits *qlimits);
  #endif
@@ -24,7 +16,7 @@ index c7e77fc..a3a13d1 100644
  			   sector_t capacity, int geom[]);
  
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
-@@ -1919,7 +1925,7 @@ rc_info (struct Scsi_Host *host_ptr)
+@@ -1919,7 +1924,7 @@ rc_info (struct Scsi_Host *host_ptr)
   */
  int
  rc_bios_params (struct scsi_device *sdev,

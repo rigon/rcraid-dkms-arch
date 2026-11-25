@@ -34,6 +34,29 @@ index 3d3f3ce..7f503af 100644
  endif
  endif
  
+diff --git a/rc.h b/rc.h
+index c518656..2be6ef6 100644
+--- a/rc.h
++++ b/rc.h
+@@ -23,6 +23,7 @@
+ #define _RC_OSHEADERS_H_
+ 
+ #include <linux/version.h>
++#include "rc_conftest.h"
+ 
+ #include <linux/module.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
+@@ -47,6 +48,10 @@
+ 
+ #include <linux/delay.h>
+ #include <linux/timer.h>
++/* 6.2 renamed del_timer_sync() to timer_delete_sync() */
++#ifndef HAVE_TIMER_DELETE_SYNC
++#define timer_delete_sync del_timer_sync
++#endif
+ #include <linux/highmem.h>
+ #include <linux/interrupt.h>
+ #include <linux/proc_fs.h>
 diff --git a/rc_msg.c b/rc_msg.c
 index 1194a70..229798d 100644
 --- a/rc_msg.c

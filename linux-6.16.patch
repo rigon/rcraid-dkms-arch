@@ -1,11 +1,11 @@
 diff --git a/rc.h b/rc.h
-index c518656..099d4c7 100644
+index 2be6ef6..9afc85e 100644
 --- a/rc.h
 +++ b/rc.h
-@@ -47,6 +47,10 @@
- 
- #include <linux/delay.h>
- #include <linux/timer.h>
+@@ -52,6 +52,10 @@
+ #ifndef HAVE_TIMER_DELETE_SYNC
+ #define timer_delete_sync del_timer_sync
+ #endif
 +/* 6.16 renamed from_timer() to timer_container_of() */
 +#ifndef timer_container_of
 +#define timer_container_of from_timer

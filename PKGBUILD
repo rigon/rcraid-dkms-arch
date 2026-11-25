@@ -32,7 +32,8 @@ source=('manual://raid_linux_driver_8_01_00_039_public.zip'
         'conftest.patch'
         'conftest.sh'
         'conftest.Kbuild'
-        'bios_param_gendisk.c')
+        'bios_param_gendisk.c'
+        'timer_delete_sync.c')
 md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '6f78c424353ae927e81bcbfec67afece'
          '461866e715a1fded49a3f7c043a173d7'
@@ -48,13 +49,14 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          'c171e789b72bd9d6cf68f7fa63dec366'
          '8843beaa9a544bfb5ac6c288a322cb9f'
          'ea3b996a096c3d3360daba6f89844726'
-         'eb43cd49bf9e312f37a25a79f0b65373'
-         'e0a0e120a47355a212c414643608f3f8'
-         'ae8603e1f814aad80f0aa24a51efd852'
+         '08ee10bca2011934eb58880e5dc17b70'
+         'e4bd4da3dd8c87d8b03d0b52f9a7ebf4'
+         'dbfa02271bc32c52cb4a9100cd691eeb'
          '57b6fed40f57d3b9cf9a68ca9fb7bb80'
          '63f5947ab8e5a7b165a0b5348f8fb086'
          'cdb4406ad6af94f00bc18f0198ba2920'
-         '57fee6796fe58c9aafb7edc665950d90')
+         '57fee6796fe58c9aafb7edc665950d90'
+         'a8f49b881b54f920ef2a5b91f064a7f6')
 
 prepare() {
     rm -rf ${_pkgbase}-${pkgver}
@@ -85,6 +87,7 @@ prepare() {
     install -Dm644 ../conftest.sh conftest.sh
     install -Dm644 ../conftest.Kbuild conftest/Kbuild
     install -Dm644 ../bios_param_gendisk.c conftest/bios_param_gendisk.c
+    install -Dm644 ../timer_delete_sync.c conftest/timer_delete_sync.c
 }
 
 package() {
