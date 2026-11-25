@@ -1,22 +1,35 @@
 diff --git a/rc_init.c b/rc_init.c
-index 0ab398a..778508c 100644
+index 0ab398a..dd6e481 100644
 --- a/rc_init.c
 +++ b/rc_init.c
-@@ -179,7 +179,7 @@ static int  rc_slave_cfg(struct scsi_device *sdev);
+@@ -39,6 +39,7 @@
+ #include "version.h"
+ #include "build_number.h"
+ #include "rc_pci_ids.h"
++#include "rc_conftest.h"
+ #include <linux/hdreg.h>
+ #include <linux/reboot.h>
+ #include <linux/pci.h>
+@@ -179,7 +180,12 @@ static int  rc_slave_cfg(struct scsi_device *sdev);
  #else
  static int  rc_slave_cfg(struct scsi_device *sdev, struct queue_limits *qlimits);
  #endif
 -int         rc_bios_params(struct scsi_device *sdev, struct block_device *bdev,
-+int         rc_bios_params(struct scsi_device *sdev, struct gendisk *bdev,
++#ifdef HAVE_BIOS_PARAM_GENDISK	/* 6.18+ */
++typedef struct gendisk rc_bios_disk_t;
++#else
++typedef struct block_device rc_bios_disk_t;
++#endif
++int         rc_bios_params(struct scsi_device *sdev, rc_bios_disk_t *bdev,
  			   sector_t capacity, int geom[]);
  
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
-@@ -1919,7 +1919,7 @@ rc_info (struct Scsi_Host *host_ptr)
+@@ -1919,7 +1925,7 @@ rc_info (struct Scsi_Host *host_ptr)
   */
  int
  rc_bios_params (struct scsi_device *sdev,
 -		struct block_device *bdev,
-+		struct gendisk *bdev,
++		rc_bios_disk_t *bdev,
  		sector_t capacity,
  		int geom[])
  {

@@ -31,7 +31,8 @@ source=('manual://raid_linux_driver_8_01_00_039_public.zip'
         'linux-6.18.patch'
         'conftest.patch'
         'conftest.sh'
-        'conftest.Kbuild')
+        'conftest.Kbuild'
+        'bios_param_gendisk.c')
 md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '6f78c424353ae927e81bcbfec67afece'
          '461866e715a1fded49a3f7c043a173d7'
@@ -49,10 +50,11 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          'ea3b996a096c3d3360daba6f89844726'
          'eb43cd49bf9e312f37a25a79f0b65373'
          'aedd3b0832b9c0b355ae4bffd4c263fe'
-         'ced4d8fb42d660ebe13fcbf2d862ca46'
+         '1c74d0c7a2b747b09cc56d2767ad1309'
          '57b6fed40f57d3b9cf9a68ca9fb7bb80'
          '63f5947ab8e5a7b165a0b5348f8fb086'
-         'cdb4406ad6af94f00bc18f0198ba2920')
+         'cdb4406ad6af94f00bc18f0198ba2920'
+         '57fee6796fe58c9aafb7edc665950d90')
 
 prepare() {
     rm -rf ${_pkgbase}-${pkgver}
