@@ -11,7 +11,7 @@ index c518656..6c218a6 100644
  #include <linux/module.h>
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
 diff --git a/rc_init.c b/rc_init.c
-index f57406d..6bb4fb8 100644
+index 23797b7..e4ac0f3 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -174,7 +174,11 @@ void        rc_timeout_done(unsigned long data);
