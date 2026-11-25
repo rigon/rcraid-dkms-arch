@@ -27,10 +27,10 @@ index e4ac0f3..9a482de 100644
  #endif
  	up(&state->rc_timeout_sema);
 diff --git a/rc_msg.c b/rc_msg.c
-index 229798d..81663b8 100644
+index 3eea472..e7df5a0 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
-@@ -1293,7 +1293,7 @@ rc_msg_timer(struct timer_list * t)
+@@ -1299,7 +1299,7 @@ rc_msg_timer(struct timer_list * t)
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)
  	state = (rc_softstate_t *)data;
  #else
@@ -39,7 +39,7 @@ index 229798d..81663b8 100644
  #endif
  
  	if ((state->state & ENABLE_TIMER) == 0)
-@@ -2396,7 +2396,7 @@ rc_msg_timeout_done(struct timer_list * t)
+@@ -2402,7 +2402,7 @@ rc_msg_timeout_done(struct timer_list * t)
  	state = (rc_softstate_t *)data;
  	init_timer(&state->msg_timeout);
  #else

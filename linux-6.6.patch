@@ -1,40 +1,58 @@
+diff --git a/rc.h b/rc.h
+index c518656..6c218a6 100644
+--- a/rc.h
++++ b/rc.h
+@@ -23,6 +23,7 @@
+ #define _RC_OSHEADERS_H_
+ 
+ #include <linux/version.h>
++#include "rc_conftest.h"
+ 
+ #include <linux/module.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
 diff --git a/rc_msg.c b/rc_msg.c
-index ca66dd6..a8e8138 100644
+index ca66dd6..f17f736 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
-@@ -81,7 +81,7 @@ static struct rc_interface_s *rc_interface_header = &RC_OurInterfaceStruct;
+@@ -81,7 +81,13 @@ static struct rc_interface_s *rc_interface_header = &RC_OurInterfaceStruct;
  
  int rc_srb_seq_num = 0;
  
 -static void rc_sysrq_intr (int key
-+static void rc_sysrq_intr (unsigned char key
++#ifdef HAVE_SYSRQ_HANDLER_U8	/* 6.6+ */
++typedef u8 rc_sysrq_key_t;
++#else
++typedef int rc_sysrq_key_t;
++#endif
++
++static void rc_sysrq_intr (rc_sysrq_key_t key
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
  			   ,struct pt_regs *pt_regs
  #endif
-@@ -90,7 +90,7 @@ static void rc_sysrq_intr (int key
+@@ -90,7 +96,7 @@ static void rc_sysrq_intr (int key
  #endif
  			   );
  
 -static void rc_sysrq_state (int key
-+static void rc_sysrq_state (unsigned char key
++static void rc_sysrq_state (rc_sysrq_key_t key
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
  			    ,struct pt_regs *pt_regs
  #endif
-@@ -2558,7 +2558,7 @@ rc_msg_stats(char *buf, int buf_size)
+@@ -2558,7 +2564,7 @@ rc_msg_stats(char *buf, int buf_size)
  	return(cnt);
  }
  
 -static void rc_sysrq_intr (int key
-+static void rc_sysrq_intr (unsigned char key
++static void rc_sysrq_intr (rc_sysrq_key_t key
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
  			   ,struct pt_regs *pt_regs
  #endif
-@@ -2582,7 +2582,7 @@ static void rc_sysrq_intr (int key
+@@ -2582,7 +2588,7 @@ static void rc_sysrq_intr (int key
  	rc_printk(RC_ALERT, "scheduling tasklet interrupt\n");
  }
  
 -static void rc_sysrq_state (int key
-+static void rc_sysrq_state (unsigned char key
++static void rc_sysrq_state (rc_sysrq_key_t key
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
  			    ,struct pt_regs *pt_regs
  #endif

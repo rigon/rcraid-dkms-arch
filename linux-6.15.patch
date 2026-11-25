@@ -50,10 +50,10 @@ index 6c218a6..2be6ef6 100644
  #include <linux/interrupt.h>
  #include <linux/proc_fs.h>
 diff --git a/rc_msg.c b/rc_msg.c
-index 1194a70..229798d 100644
+index 3fd5491..3eea472 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
-@@ -351,7 +351,7 @@ void rc_msg_suspend(rc_softstate_t *state, rc_adapter_t* adapter)
+@@ -357,7 +357,7 @@ void rc_msg_suspend(rc_softstate_t *state, rc_adapter_t* adapter)
  	{
      	rc_printk(RC_INFO2, "rc_msg_shutdown: stop OSIC timer\n");
  		state->state &= ~ENABLE_TIMER;
@@ -62,7 +62,7 @@ index 1194a70..229798d 100644
  	}
      rc_printk(RC_ALERT, "rc_msg_suspend: pausing for 1/4 second\n");
      rc_msg_timeout(HZ>>2);
-@@ -444,7 +444,7 @@ rc_msg_shutdown( rc_softstate_t *statep)
+@@ -450,7 +450,7 @@ rc_msg_shutdown( rc_softstate_t *statep)
  
  	rc_printk(RC_INFO2, "rc_msg_shutdown: stop OSIC timer\n");
  	statep->state &= ~ENABLE_TIMER;
