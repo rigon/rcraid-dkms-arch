@@ -14,7 +14,7 @@ index 2be6ef6..9afc85e 100644
  #include <linux/interrupt.h>
  #include <linux/proc_fs.h>
 diff --git a/rc_init.c b/rc_init.c
-index e4ac0f3..9a482de 100644
+index 3c7ebc9..9cf6cc1 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -2406,7 +2406,7 @@ rc_timeout_done(struct timer_list *t)

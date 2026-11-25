@@ -35,7 +35,8 @@ source=('manual://raid_linux_driver_8_01_00_039_public.zip'
         'bios_param_gendisk.c'
         'timer_delete_sync.c'
         'sdev_configure.c'
-        'sysrq_handler_u8.c')
+        'sysrq_handler_u8.c'
+        'register_sysctl.c')
 md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '6f78c424353ae927e81bcbfec67afece'
          '461866e715a1fded49a3f7c043a173d7'
@@ -46,21 +47,22 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '978b50c203e156a09977052efc4fe2a5'
          '17ebd1ffddd4cc708117db8ec010c12e'
          'cd542069132376cc10cf0694f309763f'
-         'b7e7e4567895a3fd377646113cc7af40'
-         '03da2c838466e729ef56b7ed06f2b3f9'
+         '1b011577f23ab6aba7149b7ca1f226a9'
+         '01997e968882e17229a800cae2ab1cd6'
          '52e606c5bc7c5a6e04a2c0f25a62ff74'
-         '412556f6f56b268ffd8fe95e1ea9c27d'
-         '37ed4cf9672996840e41d484c3f86c3c'
+         '1e016f4c9bae0327648d5d268f1afe61'
+         '3d68ec3586629be1f8acc34f442dba6f'
          '495bca3771c61da2f5e101806127e0b1'
-         '24c53f71ab3b946eabc6e502be248fef'
-         'eadb27bb1177c08cd9bdb5a70468c425'
+         'fd180039c8bb92b761464311ec3a69ed'
+         '3575a3170cf9dc82e3759a33b7502259'
          '57b6fed40f57d3b9cf9a68ca9fb7bb80'
          '63f5947ab8e5a7b165a0b5348f8fb086'
          'cdb4406ad6af94f00bc18f0198ba2920'
          '57fee6796fe58c9aafb7edc665950d90'
          'a8f49b881b54f920ef2a5b91f064a7f6'
          '504216d496ffe91269685ebdb48dfbf7'
-         'a13700ca3f1374c02b4e94f0f87b3be9')
+         'a13700ca3f1374c02b4e94f0f87b3be9'
+         'faf3e3da7ef7b8b2b7a3377fd3663168')
 
 prepare() {
     rm -rf ${_pkgbase}-${pkgver}
@@ -94,6 +96,7 @@ prepare() {
     install -Dm644 ../timer_delete_sync.c conftest/timer_delete_sync.c
     install -Dm644 ../sdev_configure.c conftest/sdev_configure.c
     install -Dm644 ../sysrq_handler_u8.c conftest/sysrq_handler_u8.c
+    install -Dm644 ../register_sysctl.c conftest/register_sysctl.c
 }
 
 package() {

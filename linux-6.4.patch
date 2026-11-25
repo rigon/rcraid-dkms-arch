@@ -1,12 +1,24 @@
+diff --git a/rc.h b/rc.h
+index c518656..6c218a6 100644
+--- a/rc.h
++++ b/rc.h
+@@ -23,6 +23,7 @@
+ #define _RC_OSHEADERS_H_
+ 
+ #include <linux/version.h>
++#include "rc_conftest.h"
+ 
+ #include <linux/module.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
 diff --git a/rc_init.c b/rc_init.c
-index 5c6defa..3f8097b 100644
+index 5c6defa..b827885 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -2640,6 +2640,7 @@ static struct ctl_table rcraid_table[] = {
  	{ }
  };
  
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,4,0)
++#ifndef HAVE_REGISTER_SYSCTL
  static struct ctl_table rcraid_dir_table[] = {
  	{ .procname	= "rcraid",
  	  .mode		= 0555,
@@ -23,7 +35,7 @@ index 5c6defa..3f8097b 100644
  		return err;
  
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,21)
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,0)
++#ifdef HAVE_REGISTER_SYSCTL
 +	rcraid_sysctl_hdr = register_sysctl("dev/scsi/rcraid", rcraid_table);
 +#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,21)
  	rcraid_sysctl_hdr = register_sysctl_table(rcraid_root_table);

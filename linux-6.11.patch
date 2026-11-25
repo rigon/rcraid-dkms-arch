@@ -1,5 +1,5 @@
 diff --git a/rc_init.c b/rc_init.c
-index 3f8097b..23797b7 100644
+index b827885..8f2e341 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -2637,7 +2637,9 @@ static struct ctl_table rcraid_table[] = {
@@ -11,4 +11,4 @@ index 3f8097b..23797b7 100644
 +#endif
  };
  
- #if LINUX_VERSION_CODE < KERNEL_VERSION(6,4,0)
+ #ifndef HAVE_REGISTER_SYSCTL

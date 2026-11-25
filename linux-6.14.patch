@@ -1,5 +1,5 @@
 diff --git a/rc_init.c b/rc_init.c
-index 23797b7..e4ac0f3 100644
+index 8f2e341..3c7ebc9 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -174,7 +174,11 @@ void        rc_timeout_done(unsigned long data);

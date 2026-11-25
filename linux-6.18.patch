@@ -1,5 +1,5 @@
 diff --git a/rc_init.c b/rc_init.c
-index 9a482de..dd6541d 100644
+index 9cf6cc1..747d4a3 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -179,7 +179,12 @@ static int  rc_slave_cfg(struct scsi_device *sdev);
