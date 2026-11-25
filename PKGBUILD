@@ -29,7 +29,9 @@ source=('manual://raid_linux_driver_8_01_00_039_public.zip'
         'linux-6.15.patch'
         'linux-6.16.patch'
         'linux-6.18.patch'
-        'conftest.patch')
+        'conftest.patch'
+        'conftest.sh'
+        'conftest.Kbuild')
 md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          '6f78c424353ae927e81bcbfec67afece'
          '461866e715a1fded49a3f7c043a173d7'
@@ -48,7 +50,9 @@ md5sums=('f5692d2ef952f8c903af90cdd9eb3ce6'
          'eb43cd49bf9e312f37a25a79f0b65373'
          'aedd3b0832b9c0b355ae4bffd4c263fe'
          'ced4d8fb42d660ebe13fcbf2d862ca46'
-         '2bbba32af54ac09638f5b964b083c4d3')
+         '57b6fed40f57d3b9cf9a68ca9fb7bb80'
+         '63f5947ab8e5a7b165a0b5348f8fb086'
+         'cdb4406ad6af94f00bc18f0198ba2920')
 
 prepare() {
     rm -rf ${_pkgbase}-${pkgver}
@@ -56,15 +60,29 @@ prepare() {
     cp driver_sdk/src/* ${_pkgbase}-${pkgver}
     cd ${_pkgbase}-${pkgver}
 
-    # Apply patches in source order
-    local src
-    for src in "${source[@]}"; do
-        src="${src%%::*}"   # "name::url" -> "name"
-        src="${src##*/}"    # URL -> basename
-        [[ $src = *.patch ]] || continue
-        echo "Applying patch $src..."
-        patch -Np1 < "../$src"
-    done
+    # Patching the source code
+    patch -Np1 -i ../linux-4.15.patch
+    patch -Np1 -i ../linux-5.4.patch
+    patch -Np1 -i ../linux-5.6.patch
+    patch -Np1 -i ../linux-5.14.patch
+    patch -Np1 -i ../linux-5.15.patch
+    patch -Np1 -i ../linux-5.17.patch
+    patch -Np1 -i ../linux-5.18.patch
+    patch -Np1 -i ../linux-6.2.patch
+    patch -Np1 -i ../linux-6.4.patch
+    patch -Np1 -i ../linux-6.6.patch
+    patch -Np1 -i ../linux-6.9.patch
+    patch -Np1 -i ../linux-6.11.patch
+    patch -Np1 -i ../linux-6.14.patch
+    patch -Np1 -i ../linux-6.15.patch
+    patch -Np1 -i ../linux-6.16.patch
+    patch -Np1 -i ../linux-6.18.patch
+
+    # Kernel feature detection
+    patch -Np1 -i ../conftest.patch
+    install -Dm644 ../conftest.sh conftest.sh
+    install -Dm644 ../conftest.Kbuild conftest/Kbuild
+    install -Dm644 ../bios_param_gendisk.c conftest/bios_param_gendisk.c
 }
 
 package() {
