@@ -1,48 +1,50 @@
+diff --git a/rc.h b/rc.h
+index c518656..099d4c7 100644
+--- a/rc.h
++++ b/rc.h
+@@ -47,6 +47,10 @@
+ 
+ #include <linux/delay.h>
+ #include <linux/timer.h>
++/* 6.16 renamed from_timer() to timer_container_of() */
++#ifndef timer_container_of
++#define timer_container_of from_timer
++#endif
+ #include <linux/highmem.h>
+ #include <linux/interrupt.h>
+ #include <linux/proc_fs.h>
 diff --git a/rc_init.c b/rc_init.c
-index d912eb3..0ab398a 100644
+index d912eb3..c7e77fc 100644
 --- a/rc_init.c
 +++ b/rc_init.c
-@@ -2405,9 +2405,12 @@ rc_timeout_done(struct timer_list *t)
- #if LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)
+@@ -2406,7 +2406,7 @@ rc_timeout_done(struct timer_list *t)
  	state = (rc_softstate_t *)data;
  	init_timer(&state->rc_timeout);
--#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6,16,0)
- 	state = from_timer(state, t, rc_timeout);
- 	timer_setup(&state->rc_timeout, rc_timeout_done, 0);
-+#else
+ #else
+-	state = from_timer(state, t, rc_timeout);
 +	state = timer_container_of(state, t, rc_timeout);
-+	timer_setup(&state->rc_timeout, rc_timeout_done, 0);
+ 	timer_setup(&state->rc_timeout, rc_timeout_done, 0);
  #endif
  	up(&state->rc_timeout_sema);
- }
 diff --git a/rc_msg.c b/rc_msg.c
-index 229798d..0ea074e 100644
+index 229798d..81663b8 100644
 --- a/rc_msg.c
 +++ b/rc_msg.c
-@@ -1292,8 +1292,10 @@ rc_msg_timer(struct timer_list * t)
- 
+@@ -1293,7 +1293,7 @@ rc_msg_timer(struct timer_list * t)
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)
  	state = (rc_softstate_t *)data;
--#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6,16,0)
- 	state = from_timer(state, t, timer);
-+#else
+ #else
+-	state = from_timer(state, t, timer);
 +	state = timer_container_of(state, t, timer);
  #endif
  
  	if ((state->state & ENABLE_TIMER) == 0)
-@@ -2395,9 +2397,12 @@ rc_msg_timeout_done(struct timer_list * t)
- #if LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)
+@@ -2396,7 +2396,7 @@ rc_msg_timeout_done(struct timer_list * t)
  	state = (rc_softstate_t *)data;
  	init_timer(&state->msg_timeout);
--#else
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6,16,0)
- 	state = from_timer(state, t, msg_timeout);
- 	timer_setup(&state->msg_timeout, rc_msg_timeout_done, 0);
-+#else
+ #else
+-	state = from_timer(state, t, msg_timeout);
 +	state = timer_container_of(state, t, msg_timeout);
-+	timer_setup(&state->msg_timeout, rc_msg_timeout_done, 0);
+ 	timer_setup(&state->msg_timeout, rc_msg_timeout_done, 0);
  #endif
  	up(&state->msg_timeout_sema);
- }

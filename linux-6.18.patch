@@ -1,5 +1,5 @@
 diff --git a/rc_init.c b/rc_init.c
-index 0ab398a..dd6e481 100644
+index c7e77fc..a3a13d1 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -39,6 +39,7 @@
