@@ -1,12 +1,24 @@
+diff --git a/rc.h b/rc.h
+index c518656..6c218a6 100644
+--- a/rc.h
++++ b/rc.h
+@@ -23,6 +23,7 @@
+ #define _RC_OSHEADERS_H_
+ 
+ #include <linux/version.h>
++#include "rc_conftest.h"
+ 
+ #include <linux/module.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
 diff --git a/rc_init.c b/rc_init.c
-index f57406d..d912eb3 100644
+index f57406d..6bb4fb8 100644
 --- a/rc_init.c
 +++ b/rc_init.c
 @@ -174,7 +174,11 @@ void        rc_timeout_done(unsigned long data);
  #else
  void        rc_timeout_done(struct timer_list * t);
  #endif
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 14, 0)
++#ifndef HAVE_SDEV_CONFIGURE
  static int  rc_slave_cfg(struct scsi_device *sdev);
 +#else
 +static int  rc_slave_cfg(struct scsi_device *sdev, struct queue_limits *qlimits);
@@ -18,7 +30,7 @@ index f57406d..d912eb3 100644
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
  	.use_clustering =          ENABLE_CLUSTERING,
  #endif
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 14, 0)
++#ifndef HAVE_SDEV_CONFIGURE
  	.slave_configure =         rc_slave_cfg,
 +#else
 +	.sdev_configure =          rc_slave_cfg,
@@ -30,7 +42,7 @@ index f57406d..d912eb3 100644
   *  A queue depth of one automatically disables tagged queueing.
   */
  static int
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 14, 0)
++#ifndef HAVE_SDEV_CONFIGURE
  rc_slave_cfg(struct scsi_device *sdev)
 +#else
 +rc_slave_cfg(struct scsi_device *sdev, struct queue_limits *qlimits)

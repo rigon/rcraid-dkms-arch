@@ -35,18 +35,10 @@ index 3d3f3ce..7f503af 100644
  endif
  
 diff --git a/rc.h b/rc.h
-index c518656..2be6ef6 100644
+index 6c218a6..2be6ef6 100644
 --- a/rc.h
 +++ b/rc.h
-@@ -23,6 +23,7 @@
- #define _RC_OSHEADERS_H_
- 
- #include <linux/version.h>
-+#include "rc_conftest.h"
- 
- #include <linux/module.h>
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
-@@ -47,6 +48,10 @@
+@@ -48,6 +48,10 @@
  
  #include <linux/delay.h>
  #include <linux/timer.h>
